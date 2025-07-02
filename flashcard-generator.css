@@ -1,0 +1,184 @@
+/* Main container */
+#flashcard-generator-container {
+    position: fixed;
+    top: 1vh;
+    right: 1vh;
+    width: 360px;
+    height: 60vh;
+    background-color: rgba(0,0,0,0.58); /* Dark grey background */
+    border-left: 1px solid #444;
+    box-shadow: -3px 0px 15px rgba(0, 0, 0, 0.4);
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #e0e0e0;
+}
+
+/* Header */
+.fcg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #444;
+    flex-shrink: 0;
+}
+
+.fcg-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+#fcg-close-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 5px;
+    transition: color 0.2s;
+}
+#fcg-close-btn:hover {
+    color: #fff;
+}
+
+/* Flashcard list */
+#fcg-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+/* Minimal scrollbar */
+#fcg-list::-webkit-scrollbar {
+    width: 8px;
+}
+#fcg-list::-webkit-scrollbar-track {
+    background: #282828;
+}
+#fcg-list::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+    border: 2px solid #282828;
+}
+
+/* Individual Flashcard Item */
+.fcg-item {
+    margin-bottom: 16px;
+}
+
+.fcg-card {
+    background-color: rgba(0,0,0,0.75);
+    border: 1px solid #3c3c3c;
+    border-radius: 6px;
+    padding: 12px 16px;
+    position: relative;
+    min-height: 60px;
+}
+
+.fcg-card-front {
+    margin-bottom: 4px;
+}
+
+.fcg-card-text {
+    margin: 0;
+    padding-right: 30px; /* Space for the button */
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.fcg-add-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #333;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+.fcg-add-btn:hover {
+    background-color: #007acc;
+    border-color: #007acc;
+    color: #fff;
+}
+.fcg-add-btn.added {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+    content: '✓';
+    font-size: 18px;
+    pointer-events: none; /* Disable after adding */
+}
+.fcg-add-btn.error {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    content: '!';
+    font-size: 18px;
+}
+
+
+.fcg-flip-label {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 12px;
+    color: #888;
+    user-select: none;
+}
+
+
+/* Deck Selector */
+#fcg-deck-selector-container {
+    padding: 16px;
+    border-top: 1px solid #444;
+    background-color: rgba(0,0,0,0.0.4);
+    flex-shrink: 0;
+}
+#fcg-deck-selector-container label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #aaa;
+    margin-bottom: 8px;
+    display: block;
+}
+.fcg-select-wrapper {
+    position: relative;
+}
+#fcg-deck-selector {
+    width: 100%;
+    padding: 10px;
+    background-color: #3c3c3c;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    border-radius: 4px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+.fcg-select-wrapper::after {
+    content: '▼';
+    font-size: 12px;
+    color: #aaa;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}

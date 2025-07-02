@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Flashcard Maker",
+  "version": "1.0",
+  "permissions": ["contextMenus", "activeTab", "scripting","storage"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*",
+    "http://localhost:8765/*",
+    "http://127.0.0.1:8765/*"
+  ],  
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["flashcard-generator.css"],
+      "js": ["content.js","popup.js"]
+    }
+  ]
+}
