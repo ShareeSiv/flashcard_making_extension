@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', () => {
 const MODELS = {
       google: [
         ["gemini-2.5-flash", "Gemini 2.5-Flash"],
@@ -69,3 +70,4 @@ function addModels(company) {
 function toggleApiField() {
     apiEl.disabled = !modelEl.value;
 }
+});
