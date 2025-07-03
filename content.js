@@ -179,23 +179,3 @@ function createGeneratorUI(flashcardData) {
         style.remove();
     });
 }
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.flashcards) {
-        console.log("Received flashcards from background script.");
-        createGeneratorUI(request.flashcards);
-    }
-});
-
-document.addEventListener('keyup', (event) => {
-  if (event.key.toLowerCase() === 'f') {
-    const selectedText = window.getSelection().toString().trim();
-    if (selectedText.length > 0) {
-      console.log("'F' key pressed with selection. Sending to background script.");
-      chrome.runtime.sendMessage({
-        action: "createFlashcardsFromSelection",
-        text: selectedText
-      });
-    }
-  }
-});

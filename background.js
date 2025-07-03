@@ -6,6 +6,15 @@ chrome.runtime.onInstalled.addListener(() => {
     })
 });
 
+async function resolveTabId(clickedTab) {
+  if (clickedTab && clickedTab.id >= 0) return clickedTab.id;
+
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs.length && tabs[0].id >= 0) return tabs[0].id;
+
+  throw new Error("No valid tab ID found.");
+}
+
 function prompt(text) {
     return `You are a world-class Anki flashcard creator that helps students create flashcards that help them remember facts, concepts, and ideas from text. You will be given a text in the triple backticks.
 1. Identify key high-level concepts and ideas presented, including relevant equations. If the text is math or physics-heavy, focus on concepts. If the text isn't heavy on concepts, focus on facts.
@@ -19,21 +28,13 @@ Output Format,
 - When writing math, wrap any math with the \( ... \) tags [eg, \( a^2+b^2=c^2 \) ] . By default this is inline math. For block math, use \[ ... \]. Decide when formatting each card.
 - When writing chemistry equations, use the format \( \ce{C6H12O6 + 6O2 -&gt; 6H2O + 6CO2} \) where the \ce is required for MathJax chemistry.
 - Put everything in a code block.
-\`\`\`${text}\`\`\``;
-}
-
-async function resolveTabId(clickedTab) {
-  if (clickedTab && clickedTab.id >= 0) return clickedTab.id;
-
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs.length && tabs[0].id >= 0) return tabs[0].id;
-
-  throw new Error("No valid tab ID found.");
+\`\`\`${text}\`\`\``
 }
 
 async function googleFlashCard(text,apiKey,model) {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const promptText = prompt(text);
+
         
         const body = {
             contents: [
@@ -55,6 +56,7 @@ async function googleFlashCard(text,apiKey,model) {
         const data = await resp.json();
         const output = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "(no answer)";
         console.log(output);
+
         return output;
 }
 
@@ -62,6 +64,7 @@ async function openAIFlashCard(text,apiKey,model) {
 
     const endpoint = "https://api.openai.com/v1/chat/completions";
     const promptText = prompt(text);
+
 
     const body = {
         model: model, 
@@ -97,8 +100,16 @@ async function openAIFlashCard(text,apiKey,model) {
 }
 
 async function createFlashcards(text, tab) {
-    const { company, model } = await chrome.storage.sync.get(["company", "model"]);
-    const { apiKey }  = await chrome.storage.local.get("apiKey");
+    const syncStorage = await chrome.storage.sync.get(["company", "model"]);
+    const localStorage = await chrome.storage.local.get("apiKey");
+    const { company, model } = syncStorage;
+    const { apiKey } = localStorage;
+    let output;
+
+    if (!company || !model || !apiKey) {
+            console.error("Extension not configured. Please click the extension icon to select a provider, model, and enter an API key.");
+            return; 
+    }
 
     if (company === "google") {
         output = await googleFlashCard(text, apiKey, model);
@@ -124,7 +135,6 @@ async function createFlashcards(text, tab) {
 chrome.contextMenus.onClicked.addListener(async(info,tab) => {
     if (info.menuItemId === "create-flashcards" && info.selectionText){
         createFlashcards(info.selectionText,tab);
-        const text = info.selectionText;
     };
 });
 
