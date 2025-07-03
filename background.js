@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id:"create-flashcards",
-        title:"Create Anki flashcards",
+        title:"Create Anki flashcards (F)",
         contexts: ["selection"]
     })
 });
@@ -33,11 +33,11 @@ async function resolveTabId(clickedTab) {
 
 async function googleFlashCard(text,apiKey,model) {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const prompt = prompt(text);
+    const promptText = prompt(text);
         
         const body = {
             contents: [
-                { role: "user", parts: [{ text: prompt }] }
+                { role: "user", parts: [{ text: promptText }] }
             ]
         };
 
@@ -58,39 +58,80 @@ async function googleFlashCard(text,apiKey,model) {
         return output;
 }
 
-async function openAIFlashCard() {
-    // TODO: Write this function
+async function openAIFlashCard(text,apiKey,model) {
+
+    const endpoint = "https://api.openai.com/v1/chat/completions";
+    const promptText = prompt(text);
+
+    const body = {
+        model: model, 
+        messages: [
+            {
+                role: "user",
+                content: promptText
+            }
+        ]
+    };
+
+    const resp = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}` 
+        },
+        body: JSON.stringify(body)
+    });
+
+  
+    if (!resp.ok) {
+        console.error("OpenAI API error:", await resp.text());
+        return;
+    }
+
+    
+    const data = await resp.json();
+    const output = data.choices?.[0]?.message?.content ?? "(no answer)";
+    console.log(output);
+
+    return output;
+}
+
+async function createFlashcards(text, tab) {
+    const { company, model } = await chrome.storage.sync.get(["company", "model"]);
+    const { apiKey }  = await chrome.storage.local.get("apiKey");
+
+    if (company === "google") {
+        output = await googleFlashCard(text, apiKey, model);
+    } else if (company === "openAI") {
+        output = await openAIFlashCard(text, apiKey, model);
+    } else {
+        throw new Error(`Unsupported company: ${company}`);
+    }
+    
+    try {
+        const tabId = await resolveTabId(tab);
+        await chrome.scripting.executeScript({
+            target: { tabId },
+            files: ["content.js"]
+        });
+        chrome.tabs.sendMessage(tabId, { flashcards: output });
+
+        } catch (err) {
+            console.error("Failed to send message to tab:", err);
+        }
 }
 
 chrome.contextMenus.onClicked.addListener(async(info,tab) => {
     if (info.menuItemId === "create-flashcards" && info.selectionText){
-
+        createFlashcards(info.selectionText,tab);
         const text = info.selectionText;
-        const syncData = await chrome.storage.sync.get(["company", "model"]);
-        const localData = await chrome.storage.local.get("apiKey");
-        const { company, model } = syncData;
-        const { apiKey } = localData;
-
-        if (company === "google") {
-            output = await googleFlashCard(text, apiKey, model);
-        } else if (company === "openAI") {
-            output = await openAIFlashCard(text, apiKey, model);
-        } else {
-            throw new Error(`Unsupported company: ${company}`);
-        }
-        
-
-        try {
-            const tabId = await resolveTabId(tab);
-            await chrome.scripting.executeScript({
-                target: { tabId },
-                files: ["content.js"]
-            });
-            chrome.tabs.sendMessage(tabId, { flashcards: output });
-
-            } catch (err) {
-                console.error("Failed to send message to tab:", err);
-            }
-
     };
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "createFlashcardsFromSelection") {
+        // console.log("Received request from content script via keyboard shortcut.");
+        createFlashcards(message.text, sender.tab);
+        // return true; 
+    }
 });

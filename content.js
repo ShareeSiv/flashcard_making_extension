@@ -10,7 +10,7 @@ async function fetchDeckNames() {
         return j.result || [];
     } catch (e) {
         console.log("Flashcard Generator: Could not fetch Anki decks.", e);
-        return null; // Return null to indicate failure
+        return null; 
     }
 }
 
@@ -33,7 +33,6 @@ async function addNoteToDeck(deck, front, back) {
         body: JSON.stringify(payload)
     }).then(r => r.json());
 }
-
 
 function parseFlashcards(raw) {
     const cleanedRaw = raw.replace(/```(txt|text)?\n?/g, "").replace(/```\n?$/g, "");
@@ -95,13 +94,13 @@ function createGeneratorUI(flashcardData) {
             const item = document.createElement('div');
             item.className = 'fcg-item';
 
-            // Sanitize HTML to prevent injection issues before displaying
+            // Cleam up each HTML file
             const frontHTML = card.front.replace(/</g, "<").replace(/>/g, ">");
             const backHTML = card.back.replace(/</g, "<").replace(/>/g, ">");
 
             let isShowingBack = false;
 
-            // Each flashcard HTML
+            // flashcardsHTML
             item.innerHTML = `
                 <div class="fcg-card fcg-card-front">
                     <p class="fcg-card-text">${frontHTML}</p>
@@ -127,7 +126,6 @@ function createGeneratorUI(flashcardData) {
                 }
             });
 
-            //  Event listener for the '+' button on this card
             const addButton = item.querySelector('.fcg-add-btn');
             addButton.addEventListener('click', async () => {
                 const selectedDeck = container.querySelector('#fcg-deck-selector').value;
@@ -136,7 +134,7 @@ function createGeneratorUI(flashcardData) {
                     return;
                 }
                 
-                addButton.textContent = '...'; // In-progress indicator
+                addButton.textContent = '...'; 
                 const result = await addNoteToDeck(selectedDeck, card.front, card.back);
 
                 function sleep(ms) {
@@ -158,7 +156,7 @@ function createGeneratorUI(flashcardData) {
         });
     }
 
-    // Populate Deck Selector
+    // Populates Deack Selector
     const deckSelector = container.querySelector('#fcg-deck-selector');
     fetchDeckNames().then(deckNames => {
         if (deckNames) {
@@ -175,17 +173,29 @@ function createGeneratorUI(flashcardData) {
         }
     });
 
-    // Event listener for the main close button
+    // Event listener for closing the entire thing
     container.querySelector('#fcg-close-btn').addEventListener('click', () => {
         container.remove();
         style.remove();
     });
 }
 
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.flashcards) {
         console.log("Received flashcards from background script.");
         createGeneratorUI(request.flashcards);
     }
+});
+
+document.addEventListener('keyup', (event) => {
+  if (event.key.toLowerCase() === 'f') {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText.length > 0) {
+      console.log("'F' key pressed with selection. Sending to background script.");
+      chrome.runtime.sendMessage({
+        action: "createFlashcardsFromSelection",
+        text: selectedText
+      });
+    }
+  }
 });
