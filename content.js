@@ -68,7 +68,7 @@ function createGeneratorUI(flashcardData) {
     container.id = 'flashcard-generator-container';
     container.innerHTML = `
         <div class="fcg-header">
-            <h2 class="fcg-title">Flashcard generator</h2>
+            <h2 class="fcg-title">AutoAnki</h2>
             <button id="fcg-close-btn" title="Close">×</button>
         </div>
         <div id="fcg-list"></div>
@@ -180,20 +180,29 @@ function createGeneratorUI(flashcardData) {
     });
 }
 
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'f' || event.key === 'F') {
+        const selectedText = window.getSelection().toString().trim();
+        if (selectedText) {
+            event.preventDefault();
+            chrome.runtime.sendMessage({
+                action: "createFlashcardsFromSelection",
+                text: selectedText
+            });
+        }
+    }
+});
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    // Check for the new "ping" action
     if (request.action === 'ping') {
         console.log("Received ping from background script.");
-        // Send an immediate "pong" response back.
         sendResponse({ status: 'pong' });
-        // Return true to indicate that we will send a response asynchronously.
-        // This is crucial for the connection to stay open for sendResponse.
         return true; 
     }
 
-    // Handle the original flashcards message
     if (request.flashcards) {
         console.log("Received flashcards from background script.");
         createGeneratorUI(request.flashcards);
     }
 });
+

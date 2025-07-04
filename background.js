@@ -161,8 +161,7 @@ chrome.contextMenus.onClicked.addListener(async(info,tab) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "createFlashcardsFromSelection") {
-        // console.log("Received request from content script via keyboard shortcut.");
         createFlashcards(message.text, sender.tab);
-        // return true; 
+        return true; 
     }
 });
