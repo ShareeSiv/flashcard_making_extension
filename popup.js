@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ["gemini-2.5-pro", "Gemini 2.5 Pro"]
       ],
       openai: [
-        ["gpt-4-turbo", "GPT-4 Turbo"],
-        ["gpt-3.5-turbo", "GPT-3.5 Turbo"]
+        ["gpt-4.1-nano-2025-04-14", "GPT 4.1 nano"],
+        ["o4-mini-2025-04-16", "o4 mini"]
       ]
     };
 

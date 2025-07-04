@@ -1,6 +1,6 @@
 async function fetchDeckNames() {
     try {
-        const r = await fetch("http://127.0.0.1:8765", {
+        const r = await fetch("http://localhost:8765", {
             method: "POST",
             body: JSON.stringify({ action: "deckNames", version: 6 })
         });
@@ -28,7 +28,7 @@ async function addNoteToDeck(deck, front, back) {
             }
         }
     };
-    return fetch("http://127.0.0.1:8765", {
+    return fetch("http://localhost:8765", {
         method: "POST",
         body: JSON.stringify(payload)
     }).then(r => r.json());
@@ -179,3 +179,21 @@ function createGeneratorUI(flashcardData) {
         style.remove();
     });
 }
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // Check for the new "ping" action
+    if (request.action === 'ping') {
+        console.log("Received ping from background script.");
+        // Send an immediate "pong" response back.
+        sendResponse({ status: 'pong' });
+        // Return true to indicate that we will send a response asynchronously.
+        // This is crucial for the connection to stay open for sendResponse.
+        return true; 
+    }
+
+    // Handle the original flashcards message
+    if (request.flashcards) {
+        console.log("Received flashcards from background script.");
+        createGeneratorUI(request.flashcards);
+    }
+});

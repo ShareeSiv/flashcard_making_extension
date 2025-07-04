@@ -100,6 +100,7 @@ async function openAIFlashCard(text,apiKey,model) {
 }
 
 async function createFlashcards(text, tab) {
+    try {
     const syncStorage = await chrome.storage.sync.get(["company", "model"]);
     const localStorage = await chrome.storage.local.get("apiKey");
     const { company, model } = syncStorage;
@@ -113,7 +114,7 @@ async function createFlashcards(text, tab) {
 
     if (company === "google") {
         output = await googleFlashCard(text, apiKey, model);
-    } else if (company === "openAI") {
+    } else if (company === "openai") {
         output = await openAIFlashCard(text, apiKey, model);
     } else {
         throw new Error(`Unsupported company: ${company}`);
@@ -130,15 +131,25 @@ async function createFlashcards(text, tab) {
         files: ["content.js"]
     });
 
-    try {
-        await chrome.tabs.sendMessage(tabId, { flashcards: output });
+    const response = await chrome.tabs.sendMessage(tabId, { action: "ping" });
 
-        } catch (err) {
-            if (err.message.includes("Receiving end does not exist")) {
-                console.error("Flashcard Maker Error: Could not connect to the webpage. This can happen if you reload the extension without reloading the page, or if the page is still loading. Please try again in a moment.");
-            }
-        } 
+        // 2. If we get the "pong", we know the content script is ready.
+        if (response && response.status === "pong") {
+            // 3. Now, send the actual flashcard data. This will succeed.
+            await chrome.tabs.sendMessage(tabId, { flashcards: output });
+        } else {
+            // This case is unlikely but good to have.
+            throw new Error("Content script did not respond correctly.");
+        }
 
+    } catch (err) {
+        // This will catch errors from the handshake or any other part of the process.
+        if (err.message.includes("Receiving end does not exist")) {
+            console.error("Flashcard Maker Error: Could not connect to the webpage. This is often due to a page's security policy or if it's a special browser page. Try a different page.");
+        } else {
+            console.error("An unexpected error occurred in createFlashcards:", err);
+        }
+    }
     
 }
 
