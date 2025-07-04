@@ -118,18 +118,28 @@ async function createFlashcards(text, tab) {
     } else {
         throw new Error(`Unsupported company: ${company}`);
     }
+
+    if (!output) {
+        console.error("API call did not return any output. Check your API key and model settings.");
+        return;
+    }
     
+    const tabId = await resolveTabId(tab);
+    await chrome.scripting.executeScript({
+        target: { tabId },
+        files: ["content.js"]
+    });
+
     try {
-        const tabId = await resolveTabId(tab);
-        await chrome.scripting.executeScript({
-            target: { tabId },
-            files: ["content.js"]
-        });
-        chrome.tabs.sendMessage(tabId, { flashcards: output });
+        await chrome.tabs.sendMessage(tabId, { flashcards: output });
 
         } catch (err) {
-            console.error("Failed to send message to tab:", err);
-        }
+            if (err.message.includes("Receiving end does not exist")) {
+                console.error("Flashcard Maker Error: Could not connect to the webpage. This can happen if you reload the extension without reloading the page, or if the page is still loading. Please try again in a moment.");
+            }
+        } 
+
+    
 }
 
 chrome.contextMenus.onClicked.addListener(async(info,tab) => {
