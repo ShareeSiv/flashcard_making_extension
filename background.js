@@ -65,7 +65,6 @@ async function openAIFlashCard(text,apiKey,model) {
     const endpoint = "https://api.openai.com/v1/chat/completions";
     const promptText = prompt(text);
 
-
     const body = {
         model: model, 
         messages: [
@@ -133,17 +132,13 @@ async function createFlashcards(text, tab) {
 
     const response = await chrome.tabs.sendMessage(tabId, { action: "ping" });
 
-        // 2. If we get the "pong", we know the content script is ready.
         if (response && response.status === "pong") {
-            // 3. Now, send the actual flashcard data. This will succeed.
             await chrome.tabs.sendMessage(tabId, { flashcards: output });
         } else {
-            // This case is unlikely but good to have.
             throw new Error("Content script did not respond correctly.");
         }
 
     } catch (err) {
-        // This will catch errors from the handshake or any other part of the process.
         if (err.message.includes("Receiving end does not exist")) {
             console.error("Flashcard Maker Error: Could not connect to the webpage. This is often due to a page's security policy or if it's a special browser page. Try a different page.");
         } else {
