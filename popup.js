@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
       google: [
         ["gemini-2.5-flash", "Gemini 2.5 Flash"],
         ["gemini-2.5-pro", "Gemini 2.5 Pro"],
-        ["gemini-2.0-flash", "Gemini 2.5 Flash"],
+        ["gemini-2.0-flash", "Gemini 2.0 Flash"],
         ["gemma-3n-e4b-it","Gemma 3n E4B"],
         ["gemma-3-12b-it","Gemma 3 12B"]
       ],
@@ -11,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ["gpt-4.1-nano-2025-04-14", "GPT 4.1-nano"],
         ["gpt-4.1-mini-2025-04-14","GPT 4.1 mini"],
         ["gpt-4.1-nano-2025-04-14","GPT 4.1"],
-        ["o4-mini-2025-04-16", "o4 mini"],
-        ["o3-2025-04-16","o3"]
+        ["o4-mini-2025-04-16", "o4 mini"]
       ]
     };
 
