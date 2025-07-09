@@ -94,7 +94,7 @@ function createGeneratorUI(flashcardData) {
             const item = document.createElement('div');
             item.className = 'fcg-item';
 
-            // Cleam up each HTML file
+            // Clean up each HTML file
             const frontHTML = card.front.replace(/</g, "<").replace(/>/g, ">");
             const backHTML = card.back.replace(/</g, "<").replace(/>/g, ">");
 
@@ -156,11 +156,11 @@ function createGeneratorUI(flashcardData) {
         });
     }
 
-    // Populates Deack Selector
+    // Fills Deck Selector
     const deckSelector = container.querySelector('#fcg-deck-selector');
     fetchDeckNames().then(deckNames => {
         if (deckNames) {
-            deckSelector.innerHTML = ''; // Clear "Loading..."
+            deckSelector.innerHTML = ''; // Clears "Loading..."
             deckNames.forEach(name => {
                 const option = document.createElement('option');
                 option.value = name;

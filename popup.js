@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
       openai: [
         ["gpt-4.1-nano-2025-04-14", "GPT 4.1-nano"],
         ["gpt-4.1-mini-2025-04-14","GPT 4.1 mini"],
-        ["gpt-4.1-nano-2025-04-14","GPT 4.1"],
+        ["gpt-4.1-2025-04-14","GPT 4.1"],
         ["o4-mini-2025-04-16", "o4 mini"]
       ]
     };
