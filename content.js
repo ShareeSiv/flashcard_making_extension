@@ -38,12 +38,21 @@ function parseFlashcards(raw) {
     const cleanedRaw = raw.replace(/```(txt|text)?\n?/g, "").replace(/```\n?$/g, "");
     return cleanedRaw
         .split(/\r?\n/)
-        .filter(l => l.includes("|"))
+        .filter(l => l.trim() && l.includes('{'))
         .map(l => {
-            const [front = "", back = ""] = l.split("|", 2);
-            return { front: front.trim(), back: back.trim() };
-        });
+            try {
+                const parsed = JSON.parse(l.trim());
+                return { 
+                    front: (parsed.question || "").trim(), 
+                    back: (parsed.answer || "").trim() 
+                };
+            } catch (e) {
+                return { front: "", back: "" };
+            }
+        })
+        .filter(card => card.front && card.back);
 }
+
 
 // UI 
 function createGeneratorUI(flashcardData) {
